@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_webrtc import webrtc_streamer
 import av
 import cv2
+import numpy as np
 import mediapipe as mp
 import time
 import copy
@@ -31,6 +32,16 @@ class HandDetector:
 		for pos in self.linedata[len(self.linedata)-1]:
 			self.line_list[pos[0]][pos[1]].drawflag=0
 		self.linedata.pop(len(self.linedata)-1)
+
+	#画像を出力
+	def getImage(self):
+		lastimage=np.full((self.imgH,self.imgW,3),255)
+		for i in range(self.imgH):
+			for j in range(self.imgW):
+				if(self.line_list[i][j].drawflag):
+					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
+		
+		return lastimage;
 
 	def findHandLandMarks(self, image):
 		image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -77,7 +88,7 @@ class HandDetector:
 							self.drawflag=1
 							self.nowlinedata.append((y,x))
 						self.last_draw_time=time.time()
-		
+
 		#書いていなければおわり
 		if self.drawflag==1 and time.time()-self.last_draw_time>0.3:
 			self.linedata.append(copy.deepcopy(self.nowlinedata))
@@ -117,3 +128,5 @@ if __name__ == "__main__":
 		ctx.video_processor.handDetector.color=(255,255,255)
 	if st.button("戻る", key=3):
 		ctx.video_processor.handDetector.undo()
+	if st.button("採点", key=4):
+		ctx.video_processor.handDetector.getImage()
