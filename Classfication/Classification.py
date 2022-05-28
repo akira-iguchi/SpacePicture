@@ -14,10 +14,9 @@ class Net():
         self.sm = nn.Softmax(dim=1) # どの結果も信頼性が低い場合にスコアを足切りしたいので、softmaxで正規化する
 
     # 画像ファイル名、お題を入力して認識結果（スコア）を返す
-    def predict(self, image, odai, th=.5):
+    def predict(self, fn, odai, th=.5):
         idx = classes.index(odai)
-        # image = cv2.imread(fn, cv2.IMREAD_UNCHANGED)[:,:,-1] # alpha channelを取得して2値画像へ
-        image = image[:,:,-1]
+        image = cv2.imread(fn, cv2.IMREAD_UNCHANGED)[:,:,-1] # alpha channelを取得して2値画像へ
         image = cv2.resize(image, (28, 28))
         image = np.array(image, dtype=np.float32)[None, None, :, :]
         image = torch.from_numpy(image)
