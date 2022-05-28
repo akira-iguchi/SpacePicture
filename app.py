@@ -3,7 +3,7 @@ import cv2
 import torch
 import torch.nn as nn
 
-from Classfication.Classification import Net
+#from Classfication.Classification import Net
 
 import streamlit as st
 import streamlit.components.v1 as components
