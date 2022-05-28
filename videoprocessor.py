@@ -41,7 +41,16 @@ class HandDetector:
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 
-		return lastimage;
+		#BGRA
+		#return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
+		cv2.imwrite("img/picture.png",lastimage)
+		return lastimage
+
+	#全削除
+	def deleteAll(self):
+		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
+		self.linedata=[]
+		self.nowlinedata=[]
 
 	def findHandLandMarks(self, image):
 		image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -117,6 +126,7 @@ class VideoProcessor:
 		#results_image = cv2.cvtColor(cv2.Canny(image, 100, 200), cv2.COLOR_GRAY2BGR)
 		return av.VideoFrame.from_ndarray(results_image, format="bgr24")
 
+#テスト用
 if __name__ == "__main__":
 	st.title("My first Streamlit app2")
 	ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
@@ -128,7 +138,11 @@ if __name__ == "__main__":
 	for i in list(range(0, len(colors))):
 			if st.button(colors[i], key=i):
 				ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
-			elif st.button("戻る", key=12):
-				ctx.video_processor.handDetector.undo()
-			elif st.button("採点", key=13):
-				ctx.video_processor.handDetector.getImage()
+
+	if st.button("戻る", key=12):
+		ctx.video_processor.handDetector.undo()
+	if st.button("採点", key=13):
+		#getImage()の戻り値が白紙に描かれた絵
+		result_image=ctx.video_processor.handDetector.getImage()
+	if st.button("全削除", key=14):
+		ctx.video_processor.handDetector.deleteAll()

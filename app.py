@@ -165,5 +165,5 @@ for i in list(range(0, len(colors))):
 
 if st.button("戻る", key=12):
 	ctx.video_processor.handDetector.undo()
-
-st.button("全て削除")
+if st.button("全削除", key=14):
+    ctx.video_processor.handDetector.deleteAll()
