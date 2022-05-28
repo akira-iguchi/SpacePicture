@@ -3,7 +3,8 @@ from streamlit_webrtc import webrtc_streamer
 import av
 import cv2
 import mediapipe as mp
-
+import time
+import copy
 
 class DrawData:
 	def __init__(self) -> None:
@@ -15,8 +16,22 @@ class HandDetector:
 	def __init__(self, max_num_hands=12, min_detection_confidence=0.5, min_tracking_confidence=0.5) -> None:
 		self.hands = mp.solutions.hands.Hands(max_num_hands=max_num_hands, min_detection_confidence=min_detection_confidence,
                                    min_tracking_confidence=min_tracking_confidence)
-		self.line_list = [[DrawData() for i in range(2000)] for j in range(2000)]
+		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
 		self.color=(100,255,100)
+		self.linedata=[]
+		self.nowlinedata=[]
+		#self.linedata.append()
+		self.drawflag=0
+		self.last_draw_time=0
+
+	#戻す
+	def undo(self):
+		if len(self.linedata)<1:
+			return
+		for pos in self.linedata[len(self.linedata)-1]:
+			self.line_list[pos[0]][pos[1]].drawflag=0
+		self.linedata.pop(len(self.linedata)-1)
+
 	def findHandLandMarks(self, image):
 		image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 		results = self.hands.process(image_rgb)
@@ -53,10 +68,22 @@ class HandDetector:
 							count = count+1
 						x=landMarkList[8][1]
 						y=landMarkList[8][2]
+
+
 					if count > 1:
-						self.line_list[y][x].drawflag = 1
-						self.line_list[y][x].color=self.color
+						if(self.line_list[y][x].drawflag==0):
+							self.line_list[y][x].drawflag = 1
+							self.line_list[y][x].color=self.color
+							self.drawflag=1
+							self.nowlinedata.append((y,x))
+						self.last_draw_time=time.time()
 		
+		#書いていなければおわり
+		if self.drawflag==1 and time.time()-self.last_draw_time>0.3:
+			self.linedata.append(copy.deepcopy(self.nowlinedata))
+			self.nowlinedata=list()		
+			self.drawflag=0
+
 		for i in range(self.imgH):
 			for j in range(self.imgW):
 				if(self.line_list[i][j].drawflag):
@@ -88,3 +115,5 @@ if __name__ == "__main__":
 		ctx.video_processor.handDetector.color=(100,128,100)
 	if st.button("白", key=2):
 		ctx.video_processor.handDetector.color=(255,255,255)
+	if st.button("戻る", key=3):
+		ctx.video_processor.handDetector.undo()
