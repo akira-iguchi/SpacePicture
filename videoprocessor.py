@@ -40,8 +40,8 @@ class HandDetector:
 			for j in range(self.imgW):
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
-		
-		return lastimage;
+		#BGRA
+		return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
 	
 	#全削除
 	def deleteAll(self):
@@ -123,6 +123,7 @@ class VideoProcessor:
 		#results_image = cv2.cvtColor(cv2.Canny(image, 100, 200), cv2.COLOR_GRAY2BGR)
 		return av.VideoFrame.from_ndarray(results_image, format="bgr24")
 
+#テスト用
 if __name__ == "__main__":
 	st.title("My first Streamlit app2")
 	ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
