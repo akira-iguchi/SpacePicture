@@ -12,7 +12,7 @@ import time
 import copy
 import random
 
-
+from Classfication.Classification import Net
 from videoprocessor import *
 
 net = Net()
