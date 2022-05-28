@@ -15,6 +15,9 @@ import random
 from Classfication.Classification import Net
 from videoprocessor import *
 
+# レイアウトを広く取る
+st.set_page_config(layout="wide")
+
 net = Net()
 
 classes_eng = ["apple", "book", "bowtie", "candle", "cloud", "cup", "door", "envelope", "eyeglasses", "guitar", "hammer",
@@ -42,7 +45,7 @@ components.html(
             </div>
         </div>
     </div>
-    """   
+    """,
 )
 
 components.html(
@@ -68,15 +71,15 @@ button_css = f"""
   }}
 </style>
 """
-
 st.markdown(button_css, unsafe_allow_html=True)
-action = st.button('保存・採点')
-if action:
-    result_image_path = "./img/apple.png"
-    score = net.predict(result_image_path, jpn2eng[st.session_state["odai"]])
-    st.session_state["text"] = f"採点結果：{int(score)}点"
+action = st.button('保存・採点', key=4)
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
+
+if action:
+    st.session_state["score"] = net.predict(ctx.video_processor.handDetector.getImage(), jpn2eng[st.session_state["odai"]])
+    st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}'
+
 
 if st.button("赤", key=0):
 	ctx.video_processor.handDetector.color=(0,0,250)
