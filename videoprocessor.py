@@ -42,6 +42,12 @@ class HandDetector:
 					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 		
 		return lastimage;
+	
+	#全削除
+	def deleteAll(self):
+		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
+		self.linedata=[]
+		self.nowlinedata=[]
 
 	def findHandLandMarks(self, image):
 		image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -129,4 +135,7 @@ if __name__ == "__main__":
 	if st.button("戻る", key=3):
 		ctx.video_processor.handDetector.undo()
 	if st.button("採点", key=4):
-		ctx.video_processor.handDetector.getImage()
+		#getImage()の戻り値が白紙に描かれた絵
+		result_image=ctx.video_processor.handDetector.getImage()
+	if st.button("全削除", key=5):
+		ctx.video_processor.handDetector.deleteAll()
