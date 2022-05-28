@@ -12,6 +12,8 @@ import time
 import copy
 import random
 
+import matplotlib.colors as mcolors
+
 from Classfication.Classification import Net
 from videoprocessor import *
 
@@ -42,7 +44,7 @@ components.html(
             </div>
         </div>
     </div>
-    """   
+    """
 )
 
 components.html(
@@ -55,18 +57,92 @@ components.html(
 )
 
 button_css = f"""
-<style>
-  div.stButton {{
-      text-align: right;
-  }}
-  div.stButton > button:first-child {{
-    font-weight: bold;
-    border-radius: 10px;
-    padding: 8px;
-    background: #3F7DF2;
-    color: white;
-  }}
-</style>
+    <style>
+        .css-1hynsf2 {{
+            margin-top: 10px;
+            text-align: center;
+        }}
+        .css-1hynsf2:nth-child(4) {{
+            margin-bottom: 20px;
+            text-align: right;
+        }}
+        .css-1hynsf2 > div > button {{
+            font-weight: bold;
+            border: 5px solid #3F7DF2;
+            border-radius: 10px;
+            padding: 8px;
+            background: #3F7DF2;
+            color: white;
+        }}
+        .css-1hynsf2:last-child > div > button {{
+            width: 110px;
+            height: 45px;
+            border: 5px solid #FF0000;
+            font-weight: bold;
+            border-radius: 10px;
+            padding: 8px;
+            background: #FF0000;
+            color: white;
+        }}
+        div.css-ocqkz7 > div > div > div > div > div > button {{
+            color: rgba(33, 39, 98, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50px 50px 50px 50px;
+        }}
+        div.css-ocqkz7 > div:first-child > div > div > div > div > button {{
+            border       :  5px solid #3F7DF2;
+            background   : #3F7DF2;
+        }}
+        div.css-ocqkz7 > div:nth-child(2) > div > div > div > div > button {{
+            border       :  5px solid #800080;
+            background   : #800080;
+        }}
+        div.css-ocqkz7 > div:nth-child(3) > div > div > div > div > button {{
+            border       :  5px solid #FF0000;
+            background   : #FF0000;
+        }}
+        div.css-ocqkz7 > div:nth-child(4) > div > div > div > div > button {{
+            border       :  5px solid #FFC0CB;
+            background   : #FFC0CB;
+        }}
+        div.css-ocqkz7 > div:nth-child(5) > div > div > div > div > button {{
+            border       :  5px solid #FFA500;
+            background   : #FFA500;
+        }}
+        div.css-ocqkz7 > div:nth-child(6) > div > div > div > div > button {{
+            border       :  5px solid #FFFF00;
+            background   : #FFFF00;
+        }}
+        div.css-ocqkz7 > div:nth-child(7) > div > div > div > div > button {{
+            position: relative;
+            bottom: 5px;
+            font-size: 13px;
+            border       :  5px solid #90EE90;
+            background   : #90EE90;
+        }}
+        div.css-ocqkz7 > div:nth-child(8) > div > div > div > div > button {{
+            border       :  5px solid #008000;
+            background   : #008000;
+        }}
+        div.css-ocqkz7 > div:nth-child(9) > div > div > div > div > button {{
+            border       :  5px solid #01CDFA;
+            background   : #01CDFA;
+        }}
+        div.css-ocqkz7 > div:nth-child(10) > div > div > div > div > button {{
+            border       :  5px solid #F7C39C;
+            background   : #F7C39C;
+        }}
+        div.css-ocqkz7 > div:nth-child(11) > div > div > div > div > button {{
+            color: #BBBBBB;
+            border       :  5px solid #000000;
+            background   : #000000;
+        }}
+        div.css-ocqkz7 > div:last-child > div > div > div > div > button {{
+            border       :  5px solid #FFFFFF;
+            background   : #FFFFFF;
+        }}
+    </style>
 """
 
 st.markdown(button_css, unsafe_allow_html=True)
@@ -78,13 +154,16 @@ if action:
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
-if st.button("赤", key=0):
-	ctx.video_processor.handDetector.color=(0,0,250)
-if st.button("緑", key=1):
-	ctx.video_processor.handDetector.color=(100,128,100)
-if st.button("白", key=2):
-    ctx.video_processor.handDetector.color=(255,255,255)
-if st.button("戻る", key=3):
+colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
+color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
+col = st.columns(len(colors))
+
+for i in list(range(0, len(colors))):
+    with col[i]:
+        if st.button(colors[i], key=i):
+	        ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+
+if st.button("戻る", key=12):
 	ctx.video_processor.handDetector.undo()
 
-
+st.button("全て削除")

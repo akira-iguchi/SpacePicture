@@ -40,7 +40,7 @@ class HandDetector:
 			for j in range(self.imgW):
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
-		
+
 		return lastimage;
 
 	def findHandLandMarks(self, image):
@@ -53,7 +53,7 @@ class HandDetector:
 				label = "Right"
 			elif label == "Right":
 				label = "Left"
-		
+
 		if results.multi_hand_landmarks:
 			for hand in results.multi_hand_landmarks:
 				landMarkList = []
@@ -92,25 +92,25 @@ class HandDetector:
 		#書いていなければおわり
 		if self.drawflag==1 and time.time()-self.last_draw_time>0.3:
 			self.linedata.append(copy.deepcopy(self.nowlinedata))
-			self.nowlinedata=list()		
+			self.nowlinedata=list()
 			self.drawflag=0
 
 		for i in range(self.imgH):
 			for j in range(self.imgW):
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(image, (j, i), 10, self.line_list[i][j].color, thickness=-1)
-		
-		
+
+
 		return cv2.flip(image, 1)
 
-		
+
 
 #recv関数でフレーム毎に画像を返す
 class VideoProcessor:
 	def __init__(self) -> None:
 		self.color=(255, 255, 255)
-		self.handDetector = HandDetector(min_detection_confidence=0.7)	
-	
+		self.handDetector = HandDetector(min_detection_confidence=0.7)
+
 	def recv(self,frame):
 		image = frame.to_ndarray(format="bgr24")
 		results_image = self.handDetector.findHandLandMarks(image=image)
@@ -120,13 +120,15 @@ class VideoProcessor:
 if __name__ == "__main__":
 	st.title("My first Streamlit app2")
 	ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
-	if st.button("赤", key=0):
-		ctx.video_processor.handDetector.color=(250,0,0)
-	if st.button("緑", key=1):
-		ctx.video_processor.handDetector.color=(100,128,100)
-	if st.button("白", key=2):
-		ctx.video_processor.handDetector.color=(255,255,255)
-	if st.button("戻る", key=3):
-		ctx.video_processor.handDetector.undo()
-	if st.button("採点", key=4):
-		ctx.video_processor.handDetector.getImage()
+
+	colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
+	color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
+	col = st.columns(len(colors))
+
+	for i in list(range(0, len(colors))):
+			if st.button(colors[i], key=i):
+				ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+			elif st.button("戻る", key=12):
+				ctx.video_processor.handDetector.undo()
+			elif st.button("採点", key=13):
+				ctx.video_processor.handDetector.getImage()
