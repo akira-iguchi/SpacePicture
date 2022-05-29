@@ -37,15 +37,15 @@ class HandDetector:
 
 	#画像を出力
 	def getImage(self):
-		lastimage=np.full((self.imgH,self.imgW,3),255)
+		lastimage=np.full((self.imgH,self.imgW,3),255,"uint8")
 		for i in range(self.imgH):
 			for j in range(self.imgW):
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 		#BGRA
-		#return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
-		cv2.imwrite("img/picture.png",lastimage)
-		return lastimage
+		return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
+		#cv2.imwrite("img/picture.png",lastimage)
+		#return lastimage
 	
 	#全削除
 	def deleteAll(self):
@@ -119,7 +119,7 @@ class HandDetector:
 						self.last_draw_time=time.time()
 						if self.whiteboardflag==1:
 							#cv2.circle(image, (x, y), 15, (0,0,255), thickness=-1)
-							self.putSprite_mask(image,self.pen,(y,x))
+							self.putSprite_mask(image,self.pen,(y-64,x))
 
 				#mp.solutions.drawing_utils.draw_landmarks(image, hand, mp.solutions.hands.HAND_CONNECTIONS)
 		#白紙モード
