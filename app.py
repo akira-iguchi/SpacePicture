@@ -39,6 +39,9 @@ if "text" not in st.session_state:
 if "odai" not in st.session_state:
     st.session_state["odai"] = random.choice(classes_jpn)
 
+if "opened_camera" not in st.session_state:
+    st.session_state["opened_camera"] = False
+
 # サイドバー
 logo = Image.open("img/logo1.png")
 st.sidebar.image(logo)
@@ -93,61 +96,58 @@ button_css = f"""
             background: #FF0000;
             color: white;
         }}
-        div.css-ocqkz7 > div > div > div > div > div > button {{
-            color: rgba(33, 39, 98, 0.5);
+        .css-ocqkz7 > div > div > div > div > div > button {{
+            color: rgba(33, 39, 98, 0.5) !important;
             width: 60px !important;
             height: 60px !important;
             border-radius: 50px 50px 50px 50px !important;
         }}
-        div.css-ocqkz7 > div:first-child > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(5) > div:first-child > div > div > div > div > button {{
             border       :  5px solid #3F7DF2;
             background   : #3F7DF2;
         }}
-        div.css-ocqkz7 > div:nth-child(2) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(5) > div:nth-child(2) > div > div > div > div > button {{
             border       :  5px solid #800080;
             background   : #800080;
         }}
-        div.css-ocqkz7 > div:nth-child(3) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(5) > div:nth-child(3) > div > div > div > div > button {{
             border       :  5px solid #FF0000;
             background   : #FF0000;
         }}
-        div.css-ocqkz7 > div:nth-child(4) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(5) > div:last-child > div > div > div > div > button {{
             border       :  5px solid #FFC0CB;
             background   : #FFC0CB;
         }}
-        div.css-ocqkz7 > div:nth-child(5) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(6) > div:first-child > div > div > div > div > button {{
             border       :  5px solid #FFA500;
             background   : #FFA500;
         }}
-        div.css-ocqkz7 > div:nth-child(6) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(6) > div:nth-child(2) > div > div > div > div > button {{
             border       :  5px solid #FFFF00;
             background   : #FFFF00;
         }}
-        div.css-ocqkz7 > div:nth-child(7) > div > div > div > div > button {{
-            position: relative;
-            bottom: 5px;
-            font-size: 13px;
+        .css-ocqkz7:nth-child(6) > div:nth-child(3) > div > div > div > div > button {{
             border       :  5px solid #90EE90;
             background   : #90EE90;
         }}
-        div.css-ocqkz7 > div:nth-child(8) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(6) > div:last-child > div > div > div > div > button {{
             border       :  5px solid #008000;
             background   : #008000;
         }}
-        div.css-ocqkz7 > div:nth-child(9) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(7) > div:first-child > div > div > div > div > button {{
             border       :  5px solid #01CDFA;
             background   : #01CDFA;
         }}
-        div.css-ocqkz7 > div:nth-child(10) > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(7) > div:nth-child(2) > div > div > div > div > button {{
             border       :  5px solid #F7C39C;
             background   : #F7C39C;
         }}
-        div.css-ocqkz7 > div:nth-child(11) > div > div > div > div > button {{
-            color: #BBBBBB;
+        .css-ocqkz7:nth-child(7) > div:nth-child(3) > div > div > div > div > button {{
+            color: #BBBBBB !important;
             border       :  5px solid #000000;
             background   : #000000;
         }}
-        div.css-ocqkz7 > div:last-child > div > div > div > div > button {{
+        .css-ocqkz7:nth-child(7) > div:last-child > div > div > div > div > button {{
             border       :  5px solid #FFFFFF;
             background   : #FFFFFF;
         }}
@@ -171,16 +171,18 @@ components.html(
     """,
 )
 
-action = st.button("保存・採点")
+if st.session_state["opened_camera"]:
+    action = st.button("保存・採点")
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
-if action:
-    result_image=ctx.video_processor.handDetector.getImage()
-    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]])*3 + np.random.randint(10, 30)
-    if st.session_state["score"] > 100:
-        st.session_state["score"] = 100
-    st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
+if st.session_state["opened_camera"]:
+    if action:
+        result_image=ctx.video_processor.handDetector.getImage()
+        st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]]) + np.random.randint(20, 50)
+        if st.session_state["score"] > 100:
+            st.session_state["score"] = 100
+        st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
 
 colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
 color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
@@ -190,6 +192,7 @@ cols2 = st.sidebar.columns(4)
 cols3 = st.sidebar.columns(4)
 
 if ctx.video_processor:
+    st.session_state["opened_camera"] = True
     # for i in list(range(0, len(colors))):
     #     with col[i]:
     #         if st.button(colors[i], key=i):
@@ -208,15 +211,10 @@ if ctx.video_processor:
                     ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i+8]))
     if st.button("背景切り替え", key=12):
         ctx.video_processor.handDetector.changeMode()
+    ctx.video_processor.handDetector.pixel = st.slider("線の太さ", min_value=1, max_value=30, step=1, value=3)
     if st.button("戻る", key=14):
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=15):
         ctx.video_processor.handDetector.deleteAll()
-if ctx.video_processor:
-		ctx.video_processor.handDetector.pixel = st.sidebar.slider("線の長さ", min_value=1, max_value=30, step=1, value=3)
-
-
-
-
-
-
+else:
+    st.session_state["opened_camera"] = False
