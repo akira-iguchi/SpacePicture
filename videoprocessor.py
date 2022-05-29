@@ -37,22 +37,28 @@ class HandDetector:
 
 	#画像を出力
 	def getImage(self):
-		lastimage=np.full((self.imgH,self.imgW,3),255, "uint8")
+		lastimage=np.full((self.imgH,self.imgW,3),255,"uint8")
 		for i in range(self.imgH):
 			for j in range(self.imgW):
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 
 		#BGRA
-		#return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
-		# cv2.imwrite("img/picture.png",lastimage)
-		return lastimage
+		return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
+		#cv2.imwrite("img/picture.png",lastimage)
+		#return lastimage
 
 	#全削除
 	def deleteAll(self):
 		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
 		self.linedata=[]
 		self.nowlinedata=[]
+
+	def changeMode(self):
+		if self.whiteboardflag==1:
+			self.whiteboardflag=0
+		else:
+			self.whiteboardflag=1
 
 	#画像合成
 	def putSprite_mask(self,back, front4, pos):
@@ -163,14 +169,12 @@ if __name__ == "__main__":
 			if st.button(colors[i], key=i):
 				ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
 
-	if st.button("戻る", key=12):
-		ctx.video_processor.handDetector.undo()
+	if st.button("背景切り替え", key=12):
+		ctx.video_processor.handDetector.changeMode()
 	if st.button("採点", key=13):
 		#getImage()の戻り値が白紙に描かれた絵
 		result_image=ctx.video_processor.handDetector.getImage()
-	if st.button("全削除", key=14):
+	if st.button("戻る", key=14):
+		ctx.video_processor.handDetector.undo()
+	if st.button("全削除", key=15):
 		ctx.video_processor.handDetector.deleteAll()
-	if st.button("ホワイトボード", key=15):
-		ctx.video_processor.handDetector.whiteboardflag=1
-	if st.button("実写", key=16):
-		ctx.video_processor.handDetector.whiteboardflag=0
