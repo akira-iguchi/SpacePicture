@@ -1,3 +1,5 @@
+from tkinter import Image
+from matplotlib import use
 import numpy as np
 import av
 import cv2
@@ -15,6 +17,8 @@ import random
 from Classfication.Classification import Net
 from videoprocessor import *
 
+from PIL import Image
+
 # レイアウトを広く取る
 st.set_page_config(layout="wide")
 
@@ -22,7 +26,7 @@ net = Net()
 
 classes_eng = ["apple", "book", "bowtie", "candle", "cloud", "cup", "door", "envelope", "eyeglasses", "guitar", "hammer",
            "hat", "ice cream", "leaf", "scissors", "star", "t-shirt", "pants", "lightning", "tree"]
-classes_jpn = ["りんご", "本", "蝶ネクタイ", "ろうそく", "雲", "カップ", "ドア", "封筒", "メガネ", "ギター", "ハンマー",
+classes_jpn = ["りんご", "本", "蝶ネクタイ", "ろうそく", "雲", "カップ", "ドア", "手紙", "メガネ", "ギター", "ハンマー",
            "帽子", "アイスクリーム", "葉っぱ", "ハサミ", "星", "Tシャツ", "ズボン", "雷", "木"]
 
 jpn2eng = dict(zip(classes_jpn, classes_eng))
@@ -33,12 +37,32 @@ if "text" not in st.session_state:
 if "odai" not in st.session_state:
     st.session_state["odai"] = random.choice(classes_jpn)
 
+# サイドバー
+logo = Image.open("img/logo1.png")
+st.sidebar.image(logo)
+st.sidebar.markdown(f'### お題：{st.session_state["odai"]}')
+odai_image = Image.open("img/apple.png")
+st.sidebar.image(odai_image)
+odai_button = st.sidebar.button("お題を変える")
+if odai_button:
+    st.session_state["odai"] = random.choice(classes_jpn)
+
+col1, col2, col3 = st.sidebar.columns(3)
+with col1:
+    st.markdown('aaa')
+with col2:
+    st.markdown('bbb')
+with col3:
+    st.markdown('ccc')
+
+
+
 components.html(
     f"""
     <div class="background" style="background:#3F7DF2;color:white;">
         <div class="heading">
             <div class="service_name">
-                <p style="padding-left: 20px;padding-top:20px;">スペースチャット</p>
+                <p style="padding-left: 20px;padding-top:20px;">スペースピクチャ</p>
             </div>
             <div class="result">
                 <p style="text-align: center;font-size: 36px;font-weight: 600;padding-bottom: 20px;margin:20px;">{st.session_state["text"]}</p>
@@ -89,9 +113,17 @@ if st.button("緑", key=1):
 	ctx.video_processor.handDetector.color=(100,128,100)
 if st.button("白", key=2):
     ctx.video_processor.handDetector.color=(255,255,255)
-if st.button("戻る", key=3):
-	ctx.video_processor.handDetector.undo()
-if st.button("全削除", key=5):
-	ctx.video_processor.handDetector.deleteAll()
+
+col1, col2 = st.columns(2)
+
+with col1:
+    back = st.button("戻る", key=3)
+    if back:
+        ctx.video_processor.handDetector.undo()
+with col2:
+    delete = st.button("全削除", key=5)
+    if delete:
+        ctx.video_processor.handDetector.deleteAll()
+
 
 
