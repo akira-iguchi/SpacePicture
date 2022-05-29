@@ -175,12 +175,18 @@ components.html(
 if st.session_state["opened_camera"]:
     action = st.button("保存・採点")
 
-ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
+ctx = webrtc_streamer(
+    key="example",
+    video_processor_factory=VideoProcessor,
+    rtc_configuration={  # この設定を足す
+        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+    }
+)
 
 if st.session_state["opened_camera"]:
     if action:
         result_image=ctx.video_processor.handDetector.getImage()
-        st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]]) + np.random.randint(20, 50)
+        st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]])*3 + 20
         if st.session_state["score"] > 100:
             st.session_state["score"] = 100
         st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
