@@ -17,6 +17,9 @@ import matplotlib.colors as mcolors
 from Classfication.Classification import Net
 from videoprocessor import *
 
+# レイアウトを広く取る
+st.set_page_config(layout="wide")
+
 net = Net()
 
 classes_eng = ["apple", "book", "bowtie", "candle", "cloud", "cup", "door", "envelope", "eyeglasses", "guitar", "hammer",
@@ -34,17 +37,17 @@ if "odai" not in st.session_state:
 
 button_css = f"""
     <style>
-        .css-1hynsf2 {{
+        .element-container {{
             text-align: center;
         }}
-        .css-1hynsf2:nth-child(7) {{
+        .element-container:nth-child(7) {{
             text-align: right;
         }}
-        .css-1hynsf2:nth-child(8) > div > button, .css-1hynsf2:nth-child(9) > div > button {{
+        .element-container:nth-child(8) > div > button, .element-container:nth-child(9) > div > button {{
             position: relative;
             bottom: 30px;
         }}
-        .css-1hynsf2 > div > button {{
+        .element-container > div > button {{
             font-weight: bold;
             border: 5px solid #3F7DF2;
             border-radius: 10px;
@@ -52,7 +55,7 @@ button_css = f"""
             background: #3F7DF2;
             color: white;
         }}
-        .css-1hynsf2:last-child > div > button {{
+        .element-container:last-child > div > button {{
             width: 110px;
             height: 45px;
             border: 5px solid #FF0000;
@@ -64,9 +67,9 @@ button_css = f"""
         }}
         div.css-ocqkz7 > div > div > div > div > div > button {{
             color: rgba(33, 39, 98, 0.5);
-            width: 40px;
-            height: 40px;
-            border-radius: 50px 50px 50px 50px;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50px 50px 50px 50px !important;
         }}
         div.css-ocqkz7 > div:first-child > div > div > div > div > button {{
             border       :  5px solid #3F7DF2;
@@ -137,7 +140,7 @@ components.html(
             </div>
         </div>
     </div>
-    """
+    """,
 )
 
 components.html(
@@ -162,7 +165,7 @@ color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF",
 col = st.columns(len(colors))
 
 if ctx.video_processor:
-    # st.button("背景切り替え")
+    st.button("背景切り替え")
 
     for i in list(range(0, len(colors))):
         with col[i]:
@@ -173,7 +176,3 @@ if ctx.video_processor:
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=14):
         ctx.video_processor.handDetector.deleteAll()
-    if st.button("ホワイトボード", key=15):
-        ctx.video_processor.handDetector.whiteboardflag=1
-    if st.button("実写", key=16):
-        ctx.video_processor.handDetector.whiteboardflag=0
