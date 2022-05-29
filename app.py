@@ -177,7 +177,7 @@ ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
 if action:
     result_image=ctx.video_processor.handDetector.getImage()
-    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]]) + np.random.randint(20, 50)
+    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]])*3 + np.random.randint(10, 30)
     if st.session_state["score"] > 100:
         st.session_state["score"] = 100
     st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
@@ -212,6 +212,8 @@ if ctx.video_processor:
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=15):
         ctx.video_processor.handDetector.deleteAll()
+if ctx.video_processor:
+		ctx.video_processor.handDetector.pixel = st.sidebar.slider("線の長さ", min_value=1, max_value=30, step=1, value=3)
 
 
 
