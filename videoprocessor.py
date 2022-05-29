@@ -53,6 +53,12 @@ class HandDetector:
 		self.linedata=[]
 		self.nowlinedata=[]
 	
+	def changeMode(self):
+		if self.whiteboardflag==1:
+			self.whiteboardflag=0
+		else:
+			self.whiteboardflag=1
+
 	#画像合成
 	def putSprite_mask(self,back, front4, pos):
 		y, x = pos
@@ -169,7 +175,5 @@ if __name__ == "__main__":
 		result_image=ctx.video_processor.handDetector.getImage()
 	if st.button("全削除", key=5):
 		ctx.video_processor.handDetector.deleteAll()
-	if st.button("ホワイトボード", key=6):
-		ctx.video_processor.handDetector.whiteboardflag=1;
-	if st.button("実写", key=7):
-		ctx.video_processor.handDetector.whiteboardflag=0;
+	if st.button("白紙", key=6):
+		ctx.video_processor.handDetector.changeMode()
