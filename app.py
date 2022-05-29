@@ -160,18 +160,21 @@ if action:
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
-colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
-color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
-col = st.columns(len(colors))
-
 if ctx.video_processor:
-    for i in list(range(0, len(colors))):
-        with col[i]:
-            if st.button(colors[i], key=i):
-                ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
     if st.button("背景切り替え", key=12):
         ctx.video_processor.handDetector.changeMode()
     if st.button("戻る", key=14):
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=15):
         ctx.video_processor.handDetector.deleteAll()
+
+with st.sidebar:
+    if ctx.video_processor:
+        colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
+        color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
+        col = st.columns(len(colors))
+
+        for i in list(range(0, len(colors))):
+            with col[i]:
+                if st.button(colors[i], key=i):
+                    ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
