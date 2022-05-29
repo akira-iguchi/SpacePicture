@@ -39,11 +39,12 @@ class HandDetector:
 	#画像を出力
 	def getImage(self):
 		lastimage=np.full((self.imgH,self.imgW,3),255,"uint8")
-		for i in range(self.imgH):
-			for j in range(self.imgW):
-				if(self.line_list[i][j].drawflag):
-					cv2.circle(lastimage, (j, i), 10, self.line_list[i][j].color, thickness=-1)
-		#BGRA
+		for line in self.linedata:
+			print(len(line))
+			#cv2.circle(image, (line[0].pos[1], line[0].pos[0]), line[0].pixel, line[0].color, thickness=-1)
+			for i in range(len(line)-1):
+				cv2.line(lastimage,(line[i].pos[1], line[i].pos[0]),(line[i+1].pos[1], line[i+1].pos[0]),line[i].color,line[i].pixel,cv2.LINE_4)
+		cv2.imwrite("img/picture.png",lastimage)
 		return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
 		#cv2.imwrite("img/picture.png",lastimage)
 		#return lastimage
