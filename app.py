@@ -39,6 +39,9 @@ if "text" not in st.session_state:
 if "odai" not in st.session_state:
     st.session_state["odai"] = random.choice(classes_jpn)
 
+if "opened_camera" not in st.session_state:
+    st.session_state["opened_camera"] = False
+
 # サイドバー
 logo = Image.open("img/logo1.png")
 st.sidebar.image(logo)
@@ -168,16 +171,18 @@ components.html(
     """,
 )
 
-action = st.button("保存・採点")
+if st.session_state["opened_camera"]:
+    action = st.button("保存・採点")
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
-if action:
-    result_image=ctx.video_processor.handDetector.getImage()
-    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]]) + np.random.randint(20, 50)
-    if st.session_state["score"] > 100:
-        st.session_state["score"] = 100
-    st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
+if st.session_state["opened_camera"]:
+    if action:
+        result_image=ctx.video_processor.handDetector.getImage()
+        st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]]) + np.random.randint(20, 50)
+        if st.session_state["score"] > 100:
+            st.session_state["score"] = 100
+        st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
 
 colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
 color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
@@ -187,6 +192,7 @@ cols2 = st.sidebar.columns(4)
 cols3 = st.sidebar.columns(4)
 
 if ctx.video_processor:
+    st.session_state["opened_camera"] = True
     # for i in list(range(0, len(colors))):
     #     with col[i]:
     #         if st.button(colors[i], key=i):
@@ -205,7 +211,10 @@ if ctx.video_processor:
                     ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i+8]))
     if st.button("背景切り替え", key=12):
         ctx.video_processor.handDetector.changeMode()
+    ctx.video_processor.handDetector.pixel = st.slider("線の太さ", min_value=1, max_value=30, step=1, value=3)
     if st.button("戻る", key=14):
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=15):
         ctx.video_processor.handDetector.deleteAll()
+else:
+    st.session_state["opened_camera"] = False

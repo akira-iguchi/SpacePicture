@@ -47,13 +47,13 @@ class HandDetector:
 		return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
 		#cv2.imwrite("img/picture.png",lastimage)
 		#return lastimage
-	
+
 	#全削除
 	def deleteAll(self):
 		#self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
 		self.linedata=[]
 		self.nowlinedata=[]
-	
+
 	def changeMode(self):
 		if self.whiteboardflag==1:
 			self.whiteboardflag=0
@@ -88,8 +88,8 @@ class HandDetector:
 				label = "Left"
 		if self.whiteboardflag==1:
 			image=np.full((self.imgH,self.imgW,3),255,"uint8")
-			
-		
+
+
 		if results.multi_hand_landmarks:
 			for hand in results.multi_hand_landmarks:
 				landMarkList = []
@@ -132,11 +132,11 @@ class HandDetector:
 
 				#mp.solutions.drawing_utils.draw_landmarks(image, hand, mp.solutions.hands.HAND_CONNECTIONS)
 		#白紙モード
-		
+
 		#書いていなければおわり
 		if self.drawflag==1 and time.time()-self.last_draw_time>0.3 and len(self.nowlinedata):
 			self.linedata.append(copy.deepcopy(self.nowlinedata))
-			self.nowlinedata=list()		
+			self.nowlinedata=list()
 			self.drawflag=0
 		print(len(self.linedata))
 		for line in self.linedata:
@@ -152,18 +152,18 @@ class HandDetector:
 		# 	for j in range(self.imgW):
 		# 		if(self.line_list[i][j].drawflag):
 		# 			cv2.circle(image, (j, i), 10, self.line_list[i][j].color, thickness=-1)
-		
+
 		#ミラーにして返す
 		return cv2.flip(image, 1)
 
-		
+
 
 #recv関数でフレーム毎に画像を返す
 class VideoProcessor:
 	def __init__(self) -> None:
 		self.color=(255, 255, 255)
-		self.handDetector = HandDetector(min_detection_confidence=0.7)	
-	
+		self.handDetector = HandDetector(min_detection_confidence=0.7)
+
 	def recv(self,frame):
 		image = frame.to_ndarray(format="bgr24")
 		results_image = self.handDetector.findHandLandMarks(image=image)
@@ -190,4 +190,4 @@ if __name__ == "__main__":
 	if st.button("白紙", key=6):
 		ctx.video_processor.handDetector.changeMode()
 	if ctx.video_processor:
-		ctx.video_processor.handDetector.pixel = st.slider("Threshold1", min_value=1, max_value=30, step=1, value=3)
+		ctx.video_processor.handDetector.pixel = st.slider("線の太さ", min_value=1, max_value=30, step=1, value=3)
