@@ -45,12 +45,13 @@ if "opened_camera" not in st.session_state:
 # サイドバー
 logo = Image.open("img/logo1.png")
 st.sidebar.image(logo)
-st.sidebar.markdown(f'### お題：{st.session_state["odai"]}')
-odai_image = Image.open(f"img/{jpn2eng[st.session_state['odai']]}.png")
-st.sidebar.image(odai_image)
 odai_button = st.sidebar.button("お題を変える")
 if odai_button:
     st.session_state["odai"] = random.choice(classes_jpn)
+st.sidebar.markdown(f'### お題：{st.session_state["odai"]}')
+odai_image = Image.open(f"img/{jpn2eng[st.session_state['odai']]}.png")
+st.sidebar.image(odai_image)
+
 
 
 button_css = f"""
