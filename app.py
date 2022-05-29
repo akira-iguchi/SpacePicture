@@ -1,4 +1,3 @@
-from tkinter import Image
 from matplotlib import use
 import numpy as np
 import av
