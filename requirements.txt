@@ -6,4 +6,4 @@ torch==1.11.0
 streamlit==1.9.2
 streamlit-webrtc==0.37.0
 mediapipe==0.8.10
-tkinter==8.6
+tkinter==8.6.8
