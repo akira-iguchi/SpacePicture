@@ -43,35 +43,41 @@ if "odai" not in st.session_state:
 logo = Image.open("img/logo1.png")
 st.sidebar.image(logo)
 st.sidebar.markdown(f'### お題：{st.session_state["odai"]}')
-odai_image = Image.open("img/apple.png")
+odai_image = Image.open(f"img/{jpn2eng[st.session_state['odai']]}.png")
 st.sidebar.image(odai_image)
 odai_button = st.sidebar.button("お題を変える")
 if odai_button:
     st.session_state["odai"] = random.choice(classes_jpn)
 
-col1, col2, col3 = st.sidebar.columns(3)
-with col1:
-    st.markdown('aaa')
-with col2:
-    st.markdown('bbb')
-with col3:
-    st.markdown('ccc')
 
 button_css = f"""
     <style>
         .element-container {{
             text-align: center;
         }}
-        .element-container:nth-child(7) {{
+        .element-container:nth-child(3) {{
             text-align: right;
         }}
-        .element-container:nth-child(8) > div > button, .element-container:nth-child(9) > div > button {{
+        .element-container:nth-child(5) {{
+            text-align: right;
+        }}
+        .element-container:nth-child(6) > div > button, .element-container:nth-child(7) > div > button {{
             position: relative;
             bottom: 30px;
         }}
         .element-container > div > button {{
             font-weight: bold;
-            border: 5px solid #3F7DF2;
+            border: 3px solid #3F7DF2;
+            border-radius: 10px;
+            padding: 8px;
+            background: white;
+            color: #3F7DF2;
+        }}
+        .element-container:nth-child(6) > div > button {{
+            width: 110px;
+            height: 45px;
+            border: 3px solid #3F7DF2;
+            font-weight: bold;
             border-radius: 10px;
             padding: 8px;
             background: #3F7DF2;
@@ -80,7 +86,7 @@ button_css = f"""
         .element-container:last-child > div > button {{
             width: 110px;
             height: 45px;
-            border: 5px solid #FF0000;
+            border: 3px solid #FF0000;
             font-weight: bold;
             border-radius: 10px;
             padding: 8px;
@@ -165,36 +171,50 @@ components.html(
     """,
 )
 
-components.html(
-    f"""
-    <div>
-        <p style="margin: 0; padding-left: 20px; font-size: 20px; font-weight:600;">お題：{st.session_state["odai"]}</p>
-    </div>
-    """,
-    height=35
-)
-
 action = st.button("保存・採点")
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
 if action:
     result_image=ctx.video_processor.handDetector.getImage()
-    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]])
+    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]]) + np.random.randint(20, 50)
+    if st.session_state["score"] > 100:
+        st.session_state["score"] = 100
     st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
 
 colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
 color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
-col = st.columns(len(colors))
+# col = st.columns(len(colors))
+cols1 = st.sidebar.columns(4)
+cols2 = st.sidebar.columns(4)
+cols3 = st.sidebar.columns(4)
 
 if ctx.video_processor:
-    for i in list(range(0, len(colors))):
-        with col[i]:
+    # for i in list(range(0, len(colors))):
+    #     with col[i]:
+    #         if st.button(colors[i], key=i):
+    #             ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+    for i in range(4):
+        with cols1[i]:
             if st.button(colors[i], key=i):
-                ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+                    ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+    for i in range(4):
+        with cols2[i]:
+            if st.button(colors[i+4], key=i+4):
+                    ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i+4]))
+    for i in range(4):
+        with cols3[i]:
+            if st.button(colors[i+8], key=i+8):
+                    ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i+8]))
     if st.button("背景切り替え", key=12):
         ctx.video_processor.handDetector.changeMode()
     if st.button("戻る", key=14):
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=15):
         ctx.video_processor.handDetector.deleteAll()
+
+
+
+
+
+
