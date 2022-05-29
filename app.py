@@ -14,6 +14,8 @@ import time
 import copy
 import random
 
+import matplotlib.colors as mcolors
+
 from Classfication.Classification import Net
 from videoprocessor import *
 
@@ -55,7 +57,98 @@ with col2:
 with col3:
     st.markdown('ccc')
 
+button_css = f"""
+    <style>
+        .element-container {{
+            text-align: center;
+        }}
+        .element-container:nth-child(7) {{
+            text-align: right;
+        }}
+        .element-container:nth-child(8) > div > button, .element-container:nth-child(9) > div > button {{
+            position: relative;
+            bottom: 30px;
+        }}
+        .element-container > div > button {{
+            font-weight: bold;
+            border: 5px solid #3F7DF2;
+            border-radius: 10px;
+            padding: 8px;
+            background: #3F7DF2;
+            color: white;
+        }}
+        .element-container:last-child > div > button {{
+            width: 110px;
+            height: 45px;
+            border: 5px solid #FF0000;
+            font-weight: bold;
+            border-radius: 10px;
+            padding: 8px;
+            background: #FF0000;
+            color: white;
+        }}
+        div.css-ocqkz7 > div > div > div > div > div > button {{
+            color: rgba(33, 39, 98, 0.5);
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50px 50px 50px 50px !important;
+        }}
+        div.css-ocqkz7 > div:first-child > div > div > div > div > button {{
+            border       :  5px solid #3F7DF2;
+            background   : #3F7DF2;
+        }}
+        div.css-ocqkz7 > div:nth-child(2) > div > div > div > div > button {{
+            border       :  5px solid #800080;
+            background   : #800080;
+        }}
+        div.css-ocqkz7 > div:nth-child(3) > div > div > div > div > button {{
+            border       :  5px solid #FF0000;
+            background   : #FF0000;
+        }}
+        div.css-ocqkz7 > div:nth-child(4) > div > div > div > div > button {{
+            border       :  5px solid #FFC0CB;
+            background   : #FFC0CB;
+        }}
+        div.css-ocqkz7 > div:nth-child(5) > div > div > div > div > button {{
+            border       :  5px solid #FFA500;
+            background   : #FFA500;
+        }}
+        div.css-ocqkz7 > div:nth-child(6) > div > div > div > div > button {{
+            border       :  5px solid #FFFF00;
+            background   : #FFFF00;
+        }}
+        div.css-ocqkz7 > div:nth-child(7) > div > div > div > div > button {{
+            position: relative;
+            bottom: 5px;
+            font-size: 13px;
+            border       :  5px solid #90EE90;
+            background   : #90EE90;
+        }}
+        div.css-ocqkz7 > div:nth-child(8) > div > div > div > div > button {{
+            border       :  5px solid #008000;
+            background   : #008000;
+        }}
+        div.css-ocqkz7 > div:nth-child(9) > div > div > div > div > button {{
+            border       :  5px solid #01CDFA;
+            background   : #01CDFA;
+        }}
+        div.css-ocqkz7 > div:nth-child(10) > div > div > div > div > button {{
+            border       :  5px solid #F7C39C;
+            background   : #F7C39C;
+        }}
+        div.css-ocqkz7 > div:nth-child(11) > div > div > div > div > button {{
+            color: #BBBBBB;
+            border       :  5px solid #000000;
+            background   : #000000;
+        }}
+        div.css-ocqkz7 > div:last-child > div > div > div > div > button {{
+            border       :  5px solid #FFFFFF;
+            background   : #FFFFFF;
+        }}
+    </style>
+"""
 
+st.markdown(button_css, unsafe_allow_html=True)
 
 components.html(
     f"""
@@ -75,29 +168,13 @@ components.html(
 components.html(
     f"""
     <div>
-        <p style="padding-left: 20px;margin-top:10px;font-weight:600;">お題：{st.session_state["odai"]}</p>
+        <p style="margin: 0; padding-left: 20px; font-size: 20px; font-weight:600;">お題：{st.session_state["odai"]}</p>
     </div>
     """,
     height=35
 )
 
-button_css = f"""
-<style>
-  div.stButton {{
-      text-align: right;
-  }}
-  div.stButton > button:first-child {{
-    font-weight: bold;
-    border-radius: 10px;
-    padding: 8px;
-    background: #3F7DF2;
-    color: white;
-  }}
-</style>
-"""
-st.markdown(button_css, unsafe_allow_html=True)
-
-action = st.button('保存・採点', key=4)
+action = st.button("保存・採点")
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
@@ -106,24 +183,18 @@ if action:
     st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]])
     st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
 
+colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌", "黒", "白"]
+color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
+col = st.columns(len(colors))
 
-if st.button("赤", key=0):
-	ctx.video_processor.handDetector.color=(0,0,250)
-if st.button("緑", key=1):
-	ctx.video_processor.handDetector.color=(100,128,100)
-if st.button("白", key=2):
-    ctx.video_processor.handDetector.color=(255,255,255)
-
-col1, col2 = st.columns(2)
-
-with col1:
-    back = st.button("戻る", key=3)
-    if back:
+if ctx.video_processor:
+    for i in list(range(0, len(colors))):
+        with col[i]:
+            if st.button(colors[i], key=i):
+                ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+    if st.button("背景切り替え", key=12):
+        ctx.video_processor.handDetector.changeMode()
+    if st.button("戻る", key=14):
         ctx.video_processor.handDetector.undo()
-with col2:
-    delete = st.button("全削除", key=5)
-    if delete:
+    if st.button("全削除", key=15):
         ctx.video_processor.handDetector.deleteAll()
-
-
-
