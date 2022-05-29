@@ -76,9 +76,10 @@ action = st.button('保存・採点', key=4)
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
-if action:
-    st.session_state["score"] = net.predict(ctx.video_processor.handDetector.getImage(), jpn2eng[st.session_state["odai"]])
-    st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}'
+# if action:
+    # ctx.video_processor.handDetector.getImage()
+    # st.session_state["score"] = net.predict("img/picture.png", jpn2eng[st.session_state["odai"]])
+    # st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}'
 
 
 if st.button("赤", key=0):
