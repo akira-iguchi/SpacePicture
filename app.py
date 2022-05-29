@@ -72,14 +72,16 @@ button_css = f"""
 </style>
 """
 st.markdown(button_css, unsafe_allow_html=True)
+
 action = st.button('保存・採点', key=4)
 
 ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
-# if action:
+if action:
+    result_image=ctx.video_processor.handDetector.getImage()
     # ctx.video_processor.handDetector.getImage()
-    # st.session_state["score"] = net.predict("img/picture.png", jpn2eng[st.session_state["odai"]])
-    # st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}'
+    st.session_state["score"] = net.predict("img/picture.png", jpn2eng[st.session_state["odai"]])
+    st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
 
 
 if st.button("赤", key=0):
@@ -90,5 +92,7 @@ if st.button("白", key=2):
     ctx.video_processor.handDetector.color=(255,255,255)
 if st.button("戻る", key=3):
 	ctx.video_processor.handDetector.undo()
+if st.button("全削除", key=5):
+		ctx.video_processor.handDetector.deleteAll()
 
 
