@@ -8,10 +8,11 @@ import time
 import copy
 
 class DrawData:
-	def __init__(self,pos,color) -> None:
+	def __init__(self,pos,color,pixel) -> None:
 		self.color=color
 		self.drawflag=0
 		self.pos=pos
+		self.pixel=pixel
 
 #mediapipe処理
 class HandDetector:
@@ -26,6 +27,7 @@ class HandDetector:
 		self.drawflag=0
 		self.last_draw_time=0
 		self.whiteboardflag=0
+		self.pixel=3
 		self.pen=cv2.imread('img/pen.png')
 
 	#戻す
@@ -116,7 +118,7 @@ class HandDetector:
 
 
 					if count > 2:
-						self.nowlinedata.append(DrawData((y,x),self.color))
+						self.nowlinedata.append(DrawData((y,x),self.color,self.pixel))
 						# if(self.line_list[y][x].drawflag==0):
 						# 	self.line_list[y][x].drawflag = 1
 						# 	self.line_list[y][x].color=self.color
@@ -139,13 +141,13 @@ class HandDetector:
 		print(len(self.linedata))
 		for line in self.linedata:
 			print(len(line))
-			cv2.circle(image, (line[0].pos[1], line[0].pos[0]), 3, line[0].color, thickness=-1)
+			#cv2.circle(image, (line[0].pos[1], line[0].pos[0]), line[0].pixel, line[0].color, thickness=-1)
 			for i in range(len(line)-1):
-				cv2.line(image,(line[i].pos[1], line[i].pos[0]),(line[i+1].pos[1], line[i+1].pos[0]),line[0].color,3,cv2.LINE_4)
-				cv2.circle(image, (line[i+1].pos[1], line[i+1].pos[0]), 3, line[0].color, thickness=-1)
+				cv2.line(image,(line[i].pos[1], line[i].pos[0]),(line[i+1].pos[1], line[i+1].pos[0]),line[i].color,line[i].pixel,cv2.LINE_4)
+				#cv2.circle(image, (line[i+1].pos[1], line[i+1].pos[0]), line[i+1].pixel, line[i+1].color, thickness=-1)
 		for i in range(len(self.nowlinedata)-1):
-			cv2.line(image,(self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]),(self.nowlinedata[i+1].pos[1], self.nowlinedata[i+1].pos[0]),self.nowlinedata[i].color,3,cv2.LINE_4)
-			cv2.circle(image, (self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]), 3, self.nowlinedata[i].color, thickness=-1)
+			cv2.line(image,(self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]),(self.nowlinedata[i+1].pos[1], self.nowlinedata[i+1].pos[0]),self.nowlinedata[i].color,self.nowlinedata[i].pixel,cv2.LINE_4)
+			#cv2.circle(image, (self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]), self.nowlinedata[i].pixel, self.nowlinedata[i].color, thickness=-1)
 		# for i in range(self.imgH):
 		# 	for j in range(self.imgW):
 		# 		if(self.line_list[i][j].drawflag):
@@ -187,3 +189,5 @@ if __name__ == "__main__":
 		ctx.video_processor.handDetector.deleteAll()
 	if st.button("白紙", key=6):
 		ctx.video_processor.handDetector.changeMode()
+	if ctx.video_processor:
+		ctx.video_processor.handDetector.pixel = st.slider("Threshold1", min_value=1, max_value=30, step=1, value=3)
