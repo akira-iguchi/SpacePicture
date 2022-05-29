@@ -8,16 +8,17 @@ import time
 import copy
 
 class DrawData:
-	def __init__(self) -> None:
-		self.color=(255,255,255)
+	def __init__(self,pos,color) -> None:
+		self.color=color
 		self.drawflag=0
+		self.pos=pos
 
 #mediapipe処理
 class HandDetector:
 	def __init__(self, max_num_hands=12, min_detection_confidence=0.5, min_tracking_confidence=0.5) -> None:
 		self.hands = mp.solutions.hands.Hands(max_num_hands=max_num_hands, min_detection_confidence=min_detection_confidence,
                                    min_tracking_confidence=min_tracking_confidence)
-		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
+		#self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
 		self.color=(100,255,100)
 		self.linedata=[]
 		self.nowlinedata=[]
@@ -31,8 +32,6 @@ class HandDetector:
 	def undo(self):
 		if len(self.linedata)<1:
 			return
-		for pos in self.linedata[len(self.linedata)-1]:
-			self.line_list[pos[0]][pos[1]].drawflag=0
 		self.linedata.pop(len(self.linedata)-1)
 
 	#画像を出力
@@ -49,7 +48,7 @@ class HandDetector:
 	
 	#全削除
 	def deleteAll(self):
-		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
+		#self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
 		self.linedata=[]
 		self.nowlinedata=[]
 	
@@ -116,12 +115,14 @@ class HandDetector:
 						y=landMarkList[8][2]
 
 
-					if count > 1:
-						if(self.line_list[y][x].drawflag==0):
-							self.line_list[y][x].drawflag = 1
-							self.line_list[y][x].color=self.color
-							self.drawflag=1
-							self.nowlinedata.append((y,x))
+					if count > 2:
+						self.nowlinedata.append(DrawData((y,x),self.color))
+						# if(self.line_list[y][x].drawflag==0):
+						# 	self.line_list[y][x].drawflag = 1
+						# 	self.line_list[y][x].color=self.color
+						# 	self.drawflag=1
+						# 	self.nowlinedata.append((y,x))
+						self.drawflag=1
 						self.last_draw_time=time.time()
 						if self.whiteboardflag==1:
 							#cv2.circle(image, (x, y), 15, (0,0,255), thickness=-1)
@@ -131,15 +132,24 @@ class HandDetector:
 		#白紙モード
 		
 		#書いていなければおわり
-		if self.drawflag==1 and time.time()-self.last_draw_time>0.3:
+		if self.drawflag==1 and time.time()-self.last_draw_time>0.3 and len(self.nowlinedata):
 			self.linedata.append(copy.deepcopy(self.nowlinedata))
 			self.nowlinedata=list()		
 			self.drawflag=0
-
-		for i in range(self.imgH):
-			for j in range(self.imgW):
-				if(self.line_list[i][j].drawflag):
-					cv2.circle(image, (j, i), 10, self.line_list[i][j].color, thickness=-1)
+		print(len(self.linedata))
+		for line in self.linedata:
+			print(len(line))
+			cv2.circle(image, (line[0].pos[1], line[0].pos[0]), 3, line[0].color, thickness=-1)
+			for i in range(len(line)-1):
+				cv2.line(image,(line[i].pos[1], line[i].pos[0]),(line[i+1].pos[1], line[i+1].pos[0]),line[0].color,3,cv2.LINE_4)
+				cv2.circle(image, (line[i+1].pos[1], line[i+1].pos[0]), 3, line[0].color, thickness=-1)
+		for i in range(len(self.nowlinedata)-1):
+			cv2.line(image,(self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]),(self.nowlinedata[i+1].pos[1], self.nowlinedata[i+1].pos[0]),self.nowlinedata[i].color,3,cv2.LINE_4)
+			cv2.circle(image, (self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]), 3, self.nowlinedata[i].color, thickness=-1)
+		# for i in range(self.imgH):
+		# 	for j in range(self.imgW):
+		# 		if(self.line_list[i][j].drawflag):
+		# 			cv2.circle(image, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 		
 		#ミラーにして返す
 		return cv2.flip(image, 1)
