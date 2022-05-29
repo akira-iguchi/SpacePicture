@@ -44,10 +44,7 @@ class HandDetector:
 			#cv2.circle(image, (line[0].pos[1], line[0].pos[0]), line[0].pixel, line[0].color, thickness=-1)
 			for i in range(len(line)-1):
 				cv2.line(lastimage,(line[i].pos[1], line[i].pos[0]),(line[i+1].pos[1], line[i+1].pos[0]),line[i].color,line[i].pixel,cv2.LINE_4)
-		cv2.imwrite("img/picture.png",lastimage)
 		return cv2.cvtColor(lastimage.astype(np.float32),cv2.COLOR_BGR2BGRA)
-		#cv2.imwrite("img/picture.png",lastimage)
-		#return lastimage
 	
 	#全削除
 	def deleteAll(self):
@@ -77,6 +74,7 @@ class HandDetector:
 		back[y1:y2, x1:x2] = tmp
 		return back
 
+	#描画処理
 	def findHandLandMarks(self, image):
 		image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 		results = self.hands.process(image_rgb)
@@ -87,6 +85,7 @@ class HandDetector:
 				label = "Right"
 			elif label == "Right":
 				label = "Left"
+		#白紙モード
 		if self.whiteboardflag==1:
 			image=np.full((self.imgH,self.imgW,3),255,"uint8")
 			
@@ -132,9 +131,8 @@ class HandDetector:
 							self.putSprite_mask(image,self.pen,(y-64,x))
 
 				#mp.solutions.drawing_utils.draw_landmarks(image, hand, mp.solutions.hands.HAND_CONNECTIONS)
-		#白紙モード
 		
-		#書いていなければおわり
+		#書いているか
 		if self.drawflag==1 and time.time()-self.last_draw_time>0.3 and len(self.nowlinedata):
 			self.linedata.append(copy.deepcopy(self.nowlinedata))
 			self.nowlinedata=list()		
@@ -148,11 +146,6 @@ class HandDetector:
 				#cv2.circle(image, (line[i+1].pos[1], line[i+1].pos[0]), line[i+1].pixel, line[i+1].color, thickness=-1)
 		for i in range(len(self.nowlinedata)-1):
 			cv2.line(image,(self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]),(self.nowlinedata[i+1].pos[1], self.nowlinedata[i+1].pos[0]),self.nowlinedata[i].color,self.nowlinedata[i].pixel,cv2.LINE_4)
-			#cv2.circle(image, (self.nowlinedata[i].pos[1], self.nowlinedata[i].pos[0]), self.nowlinedata[i].pixel, self.nowlinedata[i].color, thickness=-1)
-		# for i in range(self.imgH):
-		# 	for j in range(self.imgW):
-		# 		if(self.line_list[i][j].drawflag):
-		# 			cv2.circle(image, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 		
 		#ミラーにして返す
 		return cv2.flip(image, 1)
