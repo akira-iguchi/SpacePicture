@@ -79,8 +79,7 @@ ctx = webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
 
 if action:
     result_image=ctx.video_processor.handDetector.getImage()
-    # ctx.video_processor.handDetector.getImage()
-    st.session_state["score"] = net.predict("img/picture.png", jpn2eng[st.session_state["odai"]])
+    st.session_state["score"] = net.predict(result_image, jpn2eng[st.session_state["odai"]])
     st.session_state["text"] = f'採点結果：{int(st.session_state["score"])}点'
 
 
@@ -93,6 +92,6 @@ if st.button("白", key=2):
 if st.button("戻る", key=3):
 	ctx.video_processor.handDetector.undo()
 if st.button("全削除", key=5):
-		ctx.video_processor.handDetector.deleteAll()
+	ctx.video_processor.handDetector.deleteAll()
 
 
