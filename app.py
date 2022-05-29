@@ -32,39 +32,17 @@ if "text" not in st.session_state:
 if "odai" not in st.session_state:
     st.session_state["odai"] = random.choice(classes_jpn)
 
-components.html(
-    f"""
-    <div class="background" style="background:#3F7DF2;color:white;">
-        <div class="heading">
-            <div class="service_name">
-                <p style="padding-left: 20px;padding-top:20px;">スペースチャット</p>
-            </div>
-            <div class="result">
-                <p style="text-align: center;font-size: 36px;font-weight: 600;padding-bottom: 20px;margin:20px;">{st.session_state["text"]}</p>
-            </div>
-        </div>
-    </div>
-    """
-)
-
-components.html(
-    f"""
-    <div>
-        <p style="padding-left: 20px;margin-top:10px;font-weight:600;">お題：{st.session_state["odai"]}</p>
-    </div>
-    """,
-    height=35
-)
-
 button_css = f"""
     <style>
         .css-1hynsf2 {{
-            margin-top: 10px;
             text-align: center;
         }}
-        .css-1hynsf2:nth-child(4) {{
-            margin-bottom: 20px;
+        .css-1hynsf2:nth-child(7) {{
             text-align: right;
+        }}
+        .css-1hynsf2:nth-child(8) > div > button, .css-1hynsf2:nth-child(9) > div > button {{
+            position: relative;
+            bottom: 30px;
         }}
         .css-1hynsf2 > div > button {{
             font-weight: bold;
@@ -146,7 +124,32 @@ button_css = f"""
 """
 
 st.markdown(button_css, unsafe_allow_html=True)
-action = st.button('保存・採点')
+
+components.html(
+    f"""
+    <div class="background" style="background:#3F7DF2;color:white;">
+        <div class="heading">
+            <div class="service_name">
+                <p style="padding-left: 20px;padding-top:20px;">スペースチャット</p>
+            </div>
+            <div class="result">
+                <p style="text-align: center;font-size: 36px;font-weight: 600;padding-bottom: 20px;margin:20px;">{st.session_state["text"]}</p>
+            </div>
+        </div>
+    </div>
+    """
+)
+
+components.html(
+    f"""
+    <div>
+        <p style="margin: 0; padding-left: 20px; font-size: 20px; font-weight:600;">お題：{st.session_state["odai"]}</p>
+    </div>
+    """,
+    height=35
+)
+
+action = st.button("保存・採点")
 if action:
     result_image_path = "./img/apple.png"
     score = net.predict(result_image_path, jpn2eng[st.session_state["odai"]])
@@ -158,12 +161,15 @@ colors = ["青", "紫", "赤", "桃", "橙", "黄", "黄緑", "緑", "水", "肌
 color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF", "#90EE90", "#008000", "#FFFF00", "#BDDCFE", "#000000", "#FFFFFF"]
 col = st.columns(len(colors))
 
-for i in list(range(0, len(colors))):
-    with col[i]:
-        if st.button(colors[i], key=i):
-	        ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+if ctx.video_processor:
+    st.button("背景切り替え")
 
-if st.button("戻る", key=12):
-	ctx.video_processor.handDetector.undo()
-if st.button("全削除", key=14):
-    ctx.video_processor.handDetector.deleteAll()
+    for i in list(range(0, len(colors))):
+        with col[i]:
+            if st.button(colors[i], key=i):
+                ctx.video_processor.handDetector.color=tuple(int(c*255) for c in mcolors.to_rgb(color_codes[i]))
+
+    if st.button("戻る", key=12):
+        ctx.video_processor.handDetector.undo()
+    if st.button("全削除", key=14):
+        ctx.video_processor.handDetector.deleteAll()
