@@ -24,6 +24,8 @@ class HandDetector:
 		#self.linedata.append()
 		self.drawflag=0
 		self.last_draw_time=0
+		self.whiteboardflag=0
+		self.pen=cv2.imread('img/pen.png')
 
 	#戻す
 	def undo(self):
@@ -50,6 +52,22 @@ class HandDetector:
 		self.line_list = [[DrawData() for i in range(1000)] for j in range(1000)]
 		self.linedata=[]
 		self.nowlinedata=[]
+	
+	#画像合成
+	def putSprite_mask(self,back, front4, pos):
+		y, x = pos
+		fh, fw = front4.shape[:2]
+		bh, bw = back.shape[:2]
+		x1, y1 = max(x, 0), max(y, 0)
+		x2, y2 = min(x+fw, bw), min(y+fh, bh)
+		if not ((-fw < x < bw) and (-fh < y < bh)) :
+			return back
+		front3 = front4[:, :, :3]
+		front_roi = front3[y1-y:y2-y, x1-x:x2-x]
+		roi = back[y1:y2, x1:x2]
+		tmp = np.where(front_roi==(0,0,0), roi, front_roi)
+		back[y1:y2, x1:x2] = tmp
+		return back
 
 	def findHandLandMarks(self, image):
 		image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -61,6 +79,9 @@ class HandDetector:
 				label = "Right"
 			elif label == "Right":
 				label = "Left"
+		if self.whiteboardflag==1:
+			image=np.full((self.imgH,self.imgW,3),255,"uint8")
+			
 		
 		if results.multi_hand_landmarks:
 			for hand in results.multi_hand_landmarks:
@@ -96,7 +117,13 @@ class HandDetector:
 							self.drawflag=1
 							self.nowlinedata.append((y,x))
 						self.last_draw_time=time.time()
+						if self.whiteboardflag==1:
+							#cv2.circle(image, (x, y), 15, (0,0,255), thickness=-1)
+							self.putSprite_mask(image,self.pen,(y,x))
 
+				#mp.solutions.drawing_utils.draw_landmarks(image, hand, mp.solutions.hands.HAND_CONNECTIONS)
+		#白紙モード
+		
 		#書いていなければおわり
 		if self.drawflag==1 and time.time()-self.last_draw_time>0.3:
 			self.linedata.append(copy.deepcopy(self.nowlinedata))
@@ -108,7 +135,7 @@ class HandDetector:
 				if(self.line_list[i][j].drawflag):
 					cv2.circle(image, (j, i), 10, self.line_list[i][j].color, thickness=-1)
 		
-		
+		#ミラーにして返す
 		return cv2.flip(image, 1)
 
 		
@@ -142,3 +169,7 @@ if __name__ == "__main__":
 		result_image=ctx.video_processor.handDetector.getImage()
 	if st.button("全削除", key=5):
 		ctx.video_processor.handDetector.deleteAll()
+	if st.button("ホワイトボード", key=5):
+		ctx.video_processor.handDetector.whiteboardflag=1;
+	if st.button("実写", key=5):
+		ctx.video_processor.handDetector.whiteboardflag=0;
