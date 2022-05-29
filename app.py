@@ -162,7 +162,7 @@ color_codes = ["#FF0000", "#800080", "#0000FF", "#FFC0CB", "#01CDFA", "#00FFFF",
 col = st.columns(len(colors))
 
 if ctx.video_processor:
-    st.button("背景切り替え")
+    # st.button("背景切り替え")
 
     for i in list(range(0, len(colors))):
         with col[i]:
@@ -173,3 +173,7 @@ if ctx.video_processor:
         ctx.video_processor.handDetector.undo()
     if st.button("全削除", key=14):
         ctx.video_processor.handDetector.deleteAll()
+    if st.button("ホワイトボード", key=15):
+        ctx.video_processor.handDetector.whiteboardflag=1
+    if st.button("実写", key=16):
+        ctx.video_processor.handDetector.whiteboardflag=0
